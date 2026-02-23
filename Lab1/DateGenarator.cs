@@ -25,14 +25,3 @@ public static class CyclicDateGenerator
         }
     }
 }
-
-public class Program
-{
-    public static void Main()
-    {
-        foreach (var day in CyclicDateGenerator.GenerateDaysOfWeek())
-        {
-            Console.WriteLine(day);
-        }
-    }
-}
