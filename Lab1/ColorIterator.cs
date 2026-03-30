@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -34,22 +34,5 @@ public static class TimeoutColorIterator
         }
 
         Console.ResetColor();
-    }
-}
-
-public class Program
-{
-    public static void Main()
-    {
-        TimeoutColorIterator.ConsumeWithTimeout(GenerateNumbers(),5);
-    }
-
-    private static IEnumerable<int> GenerateNumbers()
-    {
-        int i = 1;
-        while (true)
-        {
-            yield return i++;
-        }
     }
 }
