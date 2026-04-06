@@ -6,55 +6,63 @@ class BiDirQueue {
 
   enqueue(item, priority) {
     this.items.push({
-      item: item,
-      priority: priority,
-      order: this.counter
+      item,
+      priority,
+      order: this.counter++
     });
-    this.counter++;
   }
 
-  peek(type) {
-    if (this.items.length === 0) return undefined;
+  _getSorted(type) {
+    const arr = [...this.items];
 
-    let arr = [...this.items];
+    switch (type) {
+      case "highest":
+        return arr.sort((a, b) => b.priority - a.priority);
 
-    if (type === "lowest") {
-      arr.sort((a, b) => a.priority - b.priority);
-    } else if (type === "oldest") {
-      arr.sort((a, b) => a.order - b.order);
-    } else if (type === "newest") {
-      arr.sort((a, b) => b.order - a.order);
-    } else {
-      arr.sort((a, b) => b.priority - a.priority);
+      case "lowest":
+        return arr.sort((a, b) => a.priority - b.priority);
+
+      case "oldest":
+        return arr.sort((a, b) => a.order - b.order);
+
+      case "newest":
+        return arr.sort((a, b) => b.order - a.order);
+
+      default:
+        throw new Error("Invalid type");
     }
-
-    return arr[0].item;
   }
 
-  dequeue(type) {
+  peek(type = "highest") {
+    if (this.items.length === 0) return undefined;
+    return this._getSorted(type)[0].item;
+  }
+
+  dequeue(type = "highest") {
     if (this.items.length === 0) return undefined;
 
-    let arr = [...this.items];
+    const sorted = this._getSorted(type);
+    const target = sorted[0];
 
-    if (type === "lowest") {
-      arr.sort((a, b) => a.priority - b.priority);
-    } else if (type === "oldest") {
-      arr.sort((a, b) => a.order - b.order);
-    } else if (type === "newest") {
-      arr.sort((a, b) => b.order - a.order);
-    } else {
-      arr.sort((a, b) => b.priority - a.priority);
-    }
+    const index = this.items.findIndex(
+      x => x === target
+    );
 
-    let target = arr[0];
-
-    for (let i = 0; i < this.items.length; i++) {
-      if (this.items[i] === target) {
-        this.items.splice(i, 1);
-        break;
-      }
-    }
-
+    this.items.splice(index, 1);
     return target.item;
   }
 }
+const pq = new BiDirQueue();
+
+pq.enqueue("A", 5);
+pq.enqueue("B", 1);
+pq.enqueue("C", 10);
+
+console.log(pq.peek("highest"));
+console.log(pq.peek("lowest"));  
+console.log(pq.peek("oldest"));  
+console.log(pq.peek("newest"));  
+
+console.log(pq.dequeue("highest")); 
+console.log(pq.dequeue("oldest"));  
+console.log(pq.dequeue("lowest"));
