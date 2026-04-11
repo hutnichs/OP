@@ -13,8 +13,12 @@ async function* generateMassiveDataset(count) {
   }
 }
 
-async function* processData(sourceStream) {
-  for await (const record of sourceStream) {
+class ProcessStream extends Transform {
+  constructor() {
+    super({ objectMode: true });
+  }
+
+  _transform(record, _, callback) {
     if (record.value > 50) {
       const processed = {
         uid: `processed_${record.id}`,
@@ -22,8 +26,9 @@ async function* processData(sourceStream) {
         category: record.value > 80 ? 'CRITICAL' : 'NORMAL',
         processedAt: new Date().toISOString()
       };
-      yield JSON.stringify(processed) + '\n';
+      this.push(JSON.stringify(processed) + '\n');
     }
+    callback();
   }
 }
 
@@ -35,11 +40,11 @@ async function runSystem() {
   const startTime = Date.now();
 
   try {
-    const source = Readable.from(generateMassiveDataset(RECORD_COUNT));
-    const processed = Readable.from(processData(source));
+    const source = Readable.from(generateMassiveDataset(RECORD_COUNT), { objectMode: true });
 
     await pipeline(
-      processed,
+      source,
+      new ProcessStream(),
       createWriteStream(OUTPUT_FILE)
     );
 
